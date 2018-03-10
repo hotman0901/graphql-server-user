@@ -1,18 +1,18 @@
+/*
+ * @Author: Benny 
+ * @Date: 2018-03-10 20:03:55 
+ * @Last Modified by: mikey.zhaopeng
+ * @Last Modified time: 2018-03-10 22:04:08
+ * schema 必須跟api的欄位名稱一樣
+ */
 const graphql = require('graphql');
 
 // 不使用假資料了
 // const _ = require('lodash');
 
-const {
-  GraphQLObjectType,
-  GraphQLString,
-  GraphQLInt,
-  GraphQLSchema
-}  = graphql;
+const { GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLSchema } = graphql;
 
 const axios = require('axios');
-
-
 // 先做假的
 // const users = [
 //   { id: '1', firstName: 'a', age: 1},
@@ -22,30 +22,50 @@ const axios = require('axios');
 //   { id: '5', firstName: 'e', age: 5},
 // ]
 
+// 建立companyType 必須宣告在userType之前
+const CompanyType = new GraphQLObjectType({
+  name: 'Company',
+  fields: {
+    id: { type: GraphQLString },
+    name: { type: GraphQLString },
+    description: { type: GraphQLString }
+  }
+});
+
 // 建立一個user的schema
 // 先定義這個table name
 // 在定義這個table有哪些欄位（fileds）
+// 如果需要關聯到另外一個table，例如company，就在fields內加上company
 const UserType = new GraphQLObjectType({
   name: 'User',
-  fields:{
+  fields: {
     id: { type: GraphQLString },
     firstName: { type: GraphQLString },
     age: { type: GraphQLInt },
+    company: {
+      type: CompanyType,
+      resolve(parentValue, args) {
+        // 再拿users內的companyId去companies內查詢資料
+        return axios.get(`http://localhost:3000/companies/${parentValue.companyId}`)
+          .then(res => res.data);
+      }
+    }
   }
-})
-
+});
 
 // 這個qeruy是尋找user功能
 // 如果你給id就回傳userType這個obj
+// user 就是呼叫的方法，必須user(id: "10")
+// args 就是傳入的查詢參數id
 const RootQuery = new GraphQLObjectType({
   name: 'RootQueryType',
   fields: {
     user: {
       type: UserType,
-      args: { 
+      args: {
         id: { type: GraphQLString }
       },
-      resolve(parentValue, args){
+      resolve(parentValue, args) {
         // resolve是我們要符合才要回傳的資料用
 
         // hard code做法
@@ -53,15 +73,14 @@ const RootQuery = new GraphQLObjectType({
         // return _.find(users, { id: args.id });
 
         // 使用call api 做法json-server，因為是promise要用then
-        return axios.get(`http://localhost:3000/users/${args.id}`)
-          .then(res => res.data)
+        return axios
+          .get(`http://localhost:3000/users/${args.id}`)
+          .then(res => res.data);
       }
     }
   }
 });
 
-
-
 module.exports = new GraphQLSchema({
   query: RootQuery
-})
+});
