@@ -42,11 +42,11 @@ const RootQuery = new GraphQLObjectType({
         id: { type: GraphQLString }
       },
       resolve(parentValue, args){
+        // resolve是我們要符合才要回傳的資料用
         // 這個args 就是上面傳進來的args的參數
         return _.find(users, { id: args.id });
       }
     }
-    
   }
 });
 
