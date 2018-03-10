@@ -1,5 +1,7 @@
 const graphql = require('graphql');
-const _ = require('lodash');
+
+// 不使用假資料了
+// const _ = require('lodash');
 
 const {
   GraphQLObjectType,
@@ -8,15 +10,17 @@ const {
   GraphQLSchema
 }  = graphql;
 
+const axios = require('axios');
+
 
 // 先做假的
-const users = [
-  { id: '1', firstName: 'a', age: 1},
-  { id: '2', firstName: 'b', age: 2},
-  { id: '3', firstName: 'c', age: 3},
-  { id: '4', firstName: 'd', age: 4},
-  { id: '5', firstName: 'e', age: 5},
-]
+// const users = [
+//   { id: '1', firstName: 'a', age: 1},
+//   { id: '2', firstName: 'b', age: 2},
+//   { id: '3', firstName: 'c', age: 3},
+//   { id: '4', firstName: 'd', age: 4},
+//   { id: '5', firstName: 'e', age: 5},
+// ]
 
 // 建立一個user的schema
 // 先定義這個table name
@@ -43,8 +47,14 @@ const RootQuery = new GraphQLObjectType({
       },
       resolve(parentValue, args){
         // resolve是我們要符合才要回傳的資料用
-        // 這個args 就是上面傳進來的args的參數
-        return _.find(users, { id: args.id });
+
+        // hard code做法
+        // 這個args 就是上面傳進來的args的參數，
+        // return _.find(users, { id: args.id });
+
+        // 使用call api 做法json-server，因為是promise要用then
+        return axios.get(`http://localhost:3000/users/${args.id}`)
+          .then(res => res.data)
       }
     }
   }
