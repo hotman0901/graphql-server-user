@@ -1,16 +1,11 @@
 {
   "users": [
-    { "id": "10", "firstName": "a", "age": 1, "companyId": "11" },
-    { "id": "20", "firstName": "b", "age": 2, "companyId": "21" },
-    { "id": "30", "firstName": "c", "age": 3, "companyId": "31" },
-    { "id": "40", "firstName": "d", "age": 4, "companyId": "41" },
-    { "id": "50", "firstName": "e", "age": 5, "companyId": "51" }
+    { "id": "40", "firstName": "Alex", "age": 40, "companyId": "2" },
+    { "id": "41", "firstName": "Nick", "age": 40, "companyId": "2" },
+    { "firstName": "Samantha", "age": 25, "companyId": "1", "id": "S1TKHzuwl" }
   ],
   "companies": [
-    { "id": "11", "name": "apple1", "description": "iphone1"},
-    { "id": "21", "name": "apple2", "description": "iphone2"},
-    { "id": "31", "name": "apple3", "description": "iphone3"},
-    { "id": "41", "name": "apple4", "description": "iphone4"},
-    { "id": "51", "name": "apple5", "description": "iphone6"}
+    { "id": "1", "name": "Apple", "description": "iphone" },
+    { "id": "2", "name": "Google", "description": "search" }
   ]
 }
