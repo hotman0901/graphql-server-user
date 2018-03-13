@@ -2,7 +2,7 @@
  * @Author: Benny 
  * @Date: 2018-03-10 20:03:55 
  * @Last Modified by: mikey.zhaopeng
- * @Last Modified time: 2018-03-11 21:16:05
+ * @Last Modified time: 2018-03-14 01:20:24
  * schema 必須跟api的欄位名稱一樣
  */
 const graphql = require('graphql');
@@ -10,7 +10,14 @@ const graphql = require('graphql');
 // 不使用假資料了
 // const _ = require('lodash');
 
-const { GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLSchema, GraphQLList } = graphql;
+const {
+  GraphQLObjectType,
+  GraphQLString,
+  GraphQLInt,
+  GraphQLSchema,
+  GraphQLList,
+  GraphQLNonNull
+} = graphql;
 
 const axios = require('axios');
 // 先做假的
@@ -35,8 +42,9 @@ const CompanyType = new GraphQLObjectType({
     users: {
       type: new GraphQLList(UserType),
       resolve(parentValue, args) {
-        return axios.get(`http://localhost:3000/companies/${parentValue.id}/users`)
-        .then(res => res.data);
+        return axios
+          .get(`http://localhost:3000/companies/${parentValue.id}/users`)
+          .then(res => res.data);
       }
     }
   })
@@ -106,6 +114,51 @@ const RootQuery = new GraphQLObjectType({
   }
 });
 
+// 建立mutation
+const mutation = new GraphQLObjectType({
+  name: 'Mutation',
+  fields: {
+    addUser: {
+      type: UserType,
+      args: {
+        // 必填功能GraphQLNonNull
+        firstName: { type: new GraphQLNonNull(GraphQLString) },
+        age: { type: new GraphQLNonNull(GraphQLInt) },
+        companyId: { type: GraphQLString }
+      },
+      resolve(parentValue, { firstName, age }) {
+        return axios
+          .post('http://localhost:3000/users', { firstName, age })
+          .then(res => res.data);
+      }
+    },
+    deleteUser: {
+      type: UserType,
+      args: {
+        id: { type: new GraphQLNonNull(GraphQLString) }
+      },
+      resolve(parentValue, { id }) {
+        axios.delete(`http://localhost:3000/users/${id}`).then(res => res.data);
+      }
+    },
+    editUser: {
+      type: UserType,
+      args: {
+        id: { type: new GraphQLNonNull(GraphQLString) },
+        firstName: { type: GraphQLString },
+        age: { type: GraphQLInt },
+        companyId: { type: GraphQLString }
+      },
+      resolve(parentValue, args) {
+        axios
+          .patch(`http://localhost:3000/users/${args.id}`, args)
+          .then(res => res.data);
+      }
+    }
+  }
+});
+
 module.exports = new GraphQLSchema({
-  query: RootQuery
+  query: RootQuery,
+  mutation
 });
